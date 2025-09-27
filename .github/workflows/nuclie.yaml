@@ -6,14 +6,14 @@ on:
       target_url:
         description: "Target URL for Nuclei scan (e.g., uat/prod/custom)"
         required: true
-        default: "https://uat.example.com"
+        default: "https://demo.testfire.net"
 
 jobs:
   nuclei-scan:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout repo (standard)
-      - name: Checkout
+      # Step 1: Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       # Step 2: Install dependencies
@@ -22,11 +22,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip jq
 
-      # Step 3: Install latest Nuclei
-      - name: Install Nuclei
+      # Step 3: Install Nuclei v3.4.10 (32-bit)
+      - name: Install Nuclei v3.4.10 (32-bit)
         run: |
-          curl -sL https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei-linux-amd64.zip -o nuclei.zip
-          unzip nuclei.zip
+          wget https://github.com/projectdiscovery/nuclei/releases/download/v3.4.10/nuclei_3.4.10_linux_386.zip
+          unzip nuclei_3.4.10_linux_386.zip
           sudo mv nuclei /usr/local/bin/
           nuclei -update-templates
 
