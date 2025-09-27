@@ -1,0 +1,56 @@
+name: Nuclei DAST Scan
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Target URL for Nuclei scan (e.g., uat/prod/custom)"
+        required: true
+        default: "https://uat.example.com"
+
+jobs:
+  nuclei-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repo (standard)
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Step 2: Install dependencies
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip jq
+
+      # Step 3: Install latest Nuclei
+      - name: Install Nuclei
+        run: |
+          curl -sL https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei-linux-amd64.zip -o nuclei.zip
+          unzip nuclei.zip
+          sudo mv nuclei /usr/local/bin/
+          nuclei -update-templates
+
+      # Step 4: Run Nuclei scan
+      - name: Run Nuclei Scan
+        run: |
+          nuclei -u "${{ github.event.inputs.target_url }}" \
+                  -severity critical,high \
+                  -o nuclei_report.json -json
+          echo "✅ Nuclei scan finished, report at $GITHUB_WORKSPACE/nuclei_report.json"
+
+      # Step 5: Upload the report as artifact
+      - name: Upload Nuclei Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuclei-report
+          path: nuclei_report.json
+
+      # Step 6: Fail if High/Critical vulnerabilities are found
+      - name: Fail on High/Critical vulnerabilities
+        run: |
+          if jq '.severity' nuclei_report.json | grep -E '"critical"|"high"'; then
+            echo "❌ High/Critical vulnerabilities found by Nuclei!"
+            exit 1
+          else
+            echo "No High/Critical vulnerabilities detected."
+          fi
