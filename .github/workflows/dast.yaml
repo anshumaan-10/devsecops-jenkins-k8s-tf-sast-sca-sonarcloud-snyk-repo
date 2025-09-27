@@ -1,0 +1,70 @@
+name: DAST Security Scans
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "Target URL (uat/prod)"
+        required: true
+        default: "https://uat.example.com"
+
+jobs:
+  dast-scan:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout repo (not strictly needed, but standard)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Install dependencies
+      - name: Install required packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget curl unzip nikto jq
+
+      # Step 3: Download and run ZAP baseline scan
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Linux.tar.gz
+          tar -xvf ZAP_2.16.0_Linux.tar.gz
+          cd ZAP_2.16.0
+          ./zap.sh -cmd -quickurl "${{ github.event.inputs.target_url }}" \
+                   -quickprogress \
+                   -quickout zap_report.html
+          mv zap_report.html $GITHUB_WORKSPACE/zap_report.html
+
+      # Step 4: Run Nuclei scan with latest templates
+      - name: Run Nuclei Scan
+        run: |
+          curl -sL https://github.com/projectdiscovery/nuclei/releases/latest/download/nuclei-linux-amd64.zip -o nuclei.zip
+          unzip nuclei.zip
+          sudo mv nuclei /usr/local/bin/
+          nuclei -update-templates
+          nuclei -u "${{ github.event.inputs.target_url }}" -o nuclei_report.json -json
+          mv nuclei_report.json $GITHUB_WORKSPACE/nuclei_report.json
+
+      # Step 5: Run Nikto scan
+      - name: Run Nikto Scan
+        run: |
+          nikto -h "${{ github.event.inputs.target_url }}" -output nikto_report.html
+          mv nikto_report.html $GITHUB_WORKSPACE/nikto_report.html
+
+      # Step 6: Upload artifacts (all reports)
+      - name: Upload DAST Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-reports
+          path: |
+            zap_report.html
+            nuclei_report.json
+            nikto_report.html
+
+      # Step 7: Fail job on High/Critical findings (example logic for Nuclei)
+      - name: Fail on High/Critical vulnerabilities
+        run: |
+          if jq '.severity' nuclei_report.json | grep -E '"critical"|"high"'; then
+            echo "High/Critical vulnerabilities found!"
+            exit 1
+          else
+            echo "No High/Critical vulnerabilities detected."
+          fi
