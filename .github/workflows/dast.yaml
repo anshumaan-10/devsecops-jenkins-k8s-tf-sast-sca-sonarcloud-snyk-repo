@@ -28,10 +28,16 @@ jobs:
           wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Linux.tar.gz
           tar -xvf ZAP_2.16.0_Linux.tar.gz
           cd ZAP_2.16.0
-          ./zap.sh -cmd -quickurl "${{ github.event.inputs.target_url }}" \
+      
+          # Output report directly to a writable directory
+          ./zap.sh -cmd \
+                   -quickurl "${{ github.event.inputs.target_url }}" \
                    -quickprogress \
-                   -quickout zap_report.html
-          mv zap_report.html $GITHUB_WORKSPACE/zap_report.html
+                   -quickout "$GITHUB_WORKSPACE/zap_report.html"
+      
+          echo "✅ ZAP scan finished, report at $GITHUB_WORKSPACE/zap_report.html"
+      
+
 
       # Step 4: Run Nuclei scan with latest templates
       - name: Run Nuclei Scan
