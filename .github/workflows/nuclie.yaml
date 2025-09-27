@@ -31,11 +31,13 @@ jobs:
           nuclei -update-templates
 
       # Step 4: Run Nuclei scan
+
       - name: Run Nuclei Scan
         run: |
           nuclei -u "${{ github.event.inputs.target_url }}" \
                   -severity critical,high \
-                  -o nuclei_report.json -json
+                  -o nuclei_report.json \
+                  -jsonl
           echo "✅ Nuclei scan finished, report at $GITHUB_WORKSPACE/nuclei_report.json"
 
       # Step 5: Upload the report as artifact
