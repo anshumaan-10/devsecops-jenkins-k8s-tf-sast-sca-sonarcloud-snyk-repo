@@ -22,11 +22,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y wget unzip jq
 
-      # Step 3: Install Nuclei v3.4.10 (32-bit)
+      # Step 3: Install Nuclei v3.4.10 (32-bit) non-interactively
       - name: Install Nuclei v3.4.10 (32-bit)
         run: |
           wget https://github.com/projectdiscovery/nuclei/releases/download/v3.4.10/nuclei_3.4.10_linux_386.zip
-          unzip nuclei_3.4.10_linux_386.zip
+          unzip -o -q nuclei_3.4.10_linux_386.zip
           sudo mv nuclei /usr/local/bin/
           nuclei -update-templates
 
