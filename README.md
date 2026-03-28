@@ -1,3 +1,5 @@
+# Devsecops Jenkins K8S Tf Sast Sca Sonarcloud Snyk Repo
+
 [![Build Status](https://travis-ci.org/k-tamura/easybuggy.svg?branch=master)](https://travis-ci.org/k-tamura/easybuggy)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![GitHub release](https://img.shields.io/github/release/k-tamura/easybuggy.svg)](https://github.com/k-tamura/easybuggy/releases/latest)
@@ -136,3 +138,21 @@ This demo shows: Start up -> Infinite Loop -> LDAP Injection -> UnsatisfiedLinkE
   EasyBuggy clone build on Django 2 and written in Python
 
   　![logo](https://github.com/k-tamura/easybuggy4django/blob/master/static/easybuggy.png)
+
+## Overview
+
+This repository contains project code and supporting assets. It is maintained actively with periodic updates.
+
+## Getting Started
+
+1. Clone this repository.
+2. Install dependencies as documented in the project files.
+3. Run/build using the project-specific commands.
+
+## Repository Structure
+
+Key source code, configuration, and documentation are organized by folders at the repository root.
+
+## Contribution Guidelines
+
+Please open an issue for major changes and submit focused pull requests with clear descriptions.
